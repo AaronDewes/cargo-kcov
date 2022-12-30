@@ -6,7 +6,7 @@ use std::process::Command;
 
 use clap::ArgMatches;
 
-use errors::Error;
+use crate::errors::Error;
 
 pub struct Cmd {
     cmd: Command,
@@ -66,12 +66,12 @@ impl Cmd {
                     }
                 }
                 ArgType::Single => {
-                    if let Some(opt) = matches.value_of_os(opt_name) {
+                    if let Some(opt) = matches.get_one::<String>(opt_name) {
                         self.cmd.arg(option).arg(opt);
                     }
                 }
                 ArgType::Multiple => {
-                    if let Some(opts) = matches.values_of_os(opt_name) {
+                    if let Some(opts) = matches.get_many::<String>(opt_name) {
                         for opt in opts {
                             self.cmd.arg(option).arg(opt);
                         }

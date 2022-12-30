@@ -10,7 +10,7 @@ use serde_json;
 use term::color::{GREEN, RED, WHITE, YELLOW};
 use term::Attr;
 
-use stderr;
+use crate::stderr;
 
 #[derive(Debug)]
 pub enum Error {

@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use regex::{escape, RegexSet};
 use shlex::Shlex;
 
-use errors::Error;
+use crate::errors::Error;
 
 /// Collects path of test executables by parsing the output of `cargo test --no-run --verbose`.
 pub fn parse_rustc_command_lines_into(targets: &mut Vec<PathBuf>, output: &str) {

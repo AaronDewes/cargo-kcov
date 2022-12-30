@@ -17,16 +17,6 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#[macro_use]
-extern crate clap;
-extern crate open;
-extern crate regex;
-extern crate serde_json;
-extern crate shlex;
-#[cfg(test)]
-extern crate tempdir;
-extern crate term;
-
 mod cargo;
 mod errors;
 mod stderr;
@@ -40,7 +30,7 @@ use std::fs::{create_dir_all, remove_dir_all};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use clap::{App, AppSettings, Arg, ArgMatches, SubCommand, crate_version};
 
 use cargo::{cargo, Cmd};
 use errors::Error;
@@ -60,7 +50,7 @@ fn main() {
     }
 }
 
-fn create_arg_parser() -> App<'static, 'static> {
+fn create_arg_parser() -> App<'static> {
     App::new("cargo-kcov")
         .about("Generate coverage report via kcov")
         .version(crate_version!())
@@ -107,12 +97,13 @@ fn create_arg_parser() -> App<'static, 'static> {
         )
 }
 
-fn filtering_arg<'a, 'b>(name: &'a str, help: &'b str) -> Arg<'a, 'b> {
-    Arg::with_name(&name[2..])
+fn filtering_arg<'a>(name: &'a str, help: &'a str) -> Arg<'a> {
+    Arg::new(&name[2..])
         .long(name)
         .value_name("NAME")
         .number_of_values(1)
-        .multiple(true)
+        .multiple_occurrences(true)
+        .multiple_values(true)
         .help(help)
 }
 
@@ -226,7 +217,7 @@ fn write_msg(title: &str, msg: &str) {
     writeln!(t, " {}", msg).unwrap();
 }
 
-fn check_kcov<'a>(matches: &'a ArgMatches<'a>) -> Result<&'a OsStr, Error> {
+fn check_kcov<'a>(matches: &'a ArgMatches) -> Result<&'a OsStr, Error> {
     let program = matches
         .value_of_os("kcov")
         .unwrap_or_else(|| OsStr::new("kcov"));
@@ -369,7 +360,7 @@ fn get_args_for_find_test_targets<'a>(
     pkgid: Option<&'a str>,
     mut path: PathBuf,
 ) -> (PathBuf, HashSet<Cow<'a, str>>) {
-    if let Some(target) = matches.value_of_os("target") {
+    if let Some(target) = matches.get_one::<String>("target") {
         path.push(target);
     }
     path.push(if matches.is_present("release") {
@@ -396,7 +387,7 @@ fn get_args_for_find_test_targets<'a>(
 
 fn extend_file_name_filters<'a>(
     filters: &mut HashSet<Cow<'a, str>>,
-    matches: &'a ArgMatches<'a>,
+    matches: &'a ArgMatches,
     key: &str,
 ) {
     if let Some(values) = matches.values_of(key) {

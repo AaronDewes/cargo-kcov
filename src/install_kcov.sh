@@ -6,7 +6,7 @@ command_exists() {
 }
 
 CARGO_HOME=${CARGO_HOME:-${HOME}/.cargo}
-KCOV_DEFAULT_VERSION="v37"
+KCOV_DEFAULT_VERSION="v40"
 GITHUB_KCOV="https://api.github.com/repos/SimonKagstrom/kcov/releases/latest"
 
 # Usage: download and install the latest kcov version by default.
